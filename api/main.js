@@ -45,6 +45,7 @@ const acceptableTo = {
  * @param {import('@vercel/node').VercelResponse} res - The response object.
  */
 export default async function handler(req, res) {
+  console.log('received request')
   // You can access query parameters like this:
   // const { name } = req.query;
 
@@ -136,7 +137,7 @@ export default async function handler(req, res) {
     }
   })()
 
-
+  console.log('successfully returned request')
   res.status(status).json({
     values: JSON.stringify(values),
     errors: JSON.stringify(errors)
