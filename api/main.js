@@ -21,13 +21,15 @@ const fromToUnits = {
   "km": [1/1.609],
   "m": [
     100,
+    3.281,
     [3.281, 39.37],
-    -1
   ],
-  "ft-in": [1/3.281, 1/39.37],
-  "ft": [3.281],
-  "cm": [2.54],
-  "in": [1/2.54]
+  "ft-in": [
+    [1/3.281, 1/39.37]
+  ],
+  "ft": [1/3.281],
+  "cm": [1/2.54, 1/100],
+  "in": [2.54]
 }
 
 // acceptible outputs
@@ -42,14 +44,23 @@ const acceptableTo = {
  * @param {import('@vercel/node').VercelRequest} req - The request object.
  * @param {import('@vercel/node').VercelResponse} res - The response object.
  */
-export default function handler(req, res) {
+export default async function handler(req, res) {
   // You can access query parameters like this:
   // const { name } = req.query;
 
   // Set the status code and send a JSON response.
+  if (req.method !== 'POST') {
+    res.status(405).json({error: "Method Not Allowed"})
+    return
+  }
 
-  // get json
-  const r = req
+  let r
+  try {
+    r = req.body
+  } catch (e) {
+    res.status(400).json({error: "invalid json payload"})
+    return
+  }
 
   if (!r.values) {
     res.json({
@@ -62,7 +73,7 @@ export default function handler(req, res) {
   const valueErr = { converted: -1 }
 
   for (let i = 0; i < r.values.length; i++) {
-    const value = values[i]
+    const value = r.values[i]
     if (!value.from) {
       values.push(valueErr)
       errors.push({valueIndex: i, error: "`from` field not provided"})
@@ -88,7 +99,7 @@ export default function handler(req, res) {
       errors.push({valueIndex: i, error: `\`from\` field \`${value.from}\` is not a valid unit`})
       continue
     }
-    if (!(value.to in fromToMappings[value.from])) {
+    if (!(fromToMappings[value.from].includes(value.to))) {
       values.push(valueErr)
       errors.push({valueIndex: i, error: `\`to\` field \`${value.to}\` not a matching conversion for ${value.from}`})
       continue
@@ -110,9 +121,9 @@ export default function handler(req, res) {
       values.push({converted: ft, converted2: _in})
     } else {
       // get the index of the ith conversion factor
-      const idx = fromToMappings[value.from].index(value.to)
+      const idx = fromToMappings[value.from].indexOf(value.to)
       // reference the units
-      const factor = fromToUnits[idx]
+      const factor = fromToUnits[value.from][idx]
       values.push({converted: value.value * factor})
     }
   }
@@ -129,5 +140,5 @@ export default function handler(req, res) {
   res.status(status).json({
     values: JSON.stringify(values),
     errors: JSON.stringify(errors)
-  });
+  })
 }
