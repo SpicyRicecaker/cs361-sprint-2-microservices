@@ -64,7 +64,7 @@ export default async function handler(req, res) {
       res.status(200).end();
       return; // Stop the function from running further
     }
-    // --- END OF PREFLIGHT HANDLING ---
+    // --- END OF PREFLIGHT HANDLING ---å
   // You can access query parameters like this:
   // const { name } = req.query;
 

@@ -8,6 +8,8 @@ km<->mi
 m<->ft, in
 cm<->in
 
+That's it!
+
 To use this microservice, make an HTTP POST request to http://cs361-sprint-2-microservice.vercel.app/api/main with a body containing objects on the `values` field, where each object has a `from`, `to`, and `value` field.
 
 If you are converting from `ft-in` to m, then you must have a `value2` including the number of inches, in addition to a `value` field.
