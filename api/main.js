@@ -45,7 +45,26 @@ const acceptableTo = {
  * @param {import('@vercel/node').VercelResponse} res - The response object.
  */
 export default async function handler(req, res) {
-  console.log('received request')
+    // --- CORS HEADERS ---
+    // Set the origin that is allowed to make requests.
+    // Use '*' to allow any origin, or be more specific for security.
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    // Set the methods that are allowed.
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+
+    // Set the headers that are allowed in the request.
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept');
+    // --- END OF CORS HEADERS ---
+
+
+    // --- HANDLE PREFLIGHT REQUEST ---
+    // This is the crucial part that fixes your "does not have HTTP ok status" error.
+    if (req.method === 'OPTIONS') {
+      res.status(200).end();
+      return; // Stop the function from running further
+    }
+    // --- END OF PREFLIGHT HANDLING ---
   // You can access query parameters like this:
   // const { name } = req.query;
 
